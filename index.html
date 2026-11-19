@@ -1,0 +1,1285 @@
+<title>Simulasi Kalkulus Pertemuan 1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.3/plotly.min.js"></script>
+<style>
+  :root {
+    --navy: #0B2A4A;
+    --navy-light: #1B4D7A;
+    --gold: #D4AF37;
+    --bg: #F5F6F8;
+    --dark: #222222;
+    --gray: #5A5A5A;
+    --red: #B03030;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 24px 32px;
+    border-bottom: 4px solid var(--gold);
+  }
+  header h1 { margin: 0 0 4px 0; font-size: 1.6rem; }
+  header p { margin: 0; color: var(--gold); font-weight: 600; font-size: 0.95rem; }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: white;
+    border: 2px solid var(--navy);
+    color: var(--navy);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: var(--navy);
+    color: white;
+  }
+  .tab-btn:hover { background: var(--navy-light); color: white; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .var-inline {
+    font-family: "Cambria Math", Cambria, serif;
+    font-style: italic;
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .tab-group-label {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+    color: var(--gray);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .glossary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .glossary { grid-template-columns: 1fr; }
+  }
+  .glossary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--gold);
+  }
+  .glossary-bullet {
+    flex-shrink: 0;
+    color: var(--gold);
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+  .glossary-text { flex: 1; min-width: 0; }
+  .glossary-term {
+    display: block;
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .glossary-def {
+    display: block;
+    color: var(--dark);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    color: var(--navy);
+    margin-top: 0;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 8px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .grid-2 > * { min-width: 0; }
+  @media (max-width: 850px) {
+    .grid-2 { grid-template-columns: minmax(0, 1fr); }
+  }
+  .control-group {
+    margin-bottom: 18px;
+  }
+  .control-group label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .control-group input[type=range] {
+    width: 100%;
+    accent-color: var(--gold);
+  }
+  .readout {
+    color: var(--red);
+    font-weight: 700;
+    font-family: "Consolas", monospace;
+  }
+  .result-box {
+    background: var(--bg);
+    border-left: 4px solid var(--gold);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-top: 10px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .result-box b { color: var(--navy); }
+  .flag {
+    background: #FBEAEA;
+    border: 1.5px solid var(--red);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--dark);
+  }
+  .flag b { color: var(--red); }
+  .plot-box {
+    width: 100%;
+    max-width: 100%;
+    height: 420px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  footer {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.85rem;
+    padding: 20px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  /* ===== Equation styling (tanpa dependency eksternal) ===== */
+  .eq-block {
+    font-family: "Cambria Math", Cambria, "Times New Roman", serif;
+    font-size: 1.05rem;
+    line-height: 2.4;
+    color: var(--dark);
+  }
+  .eq-block .eq-line { margin-bottom: 4px; }
+  .frac {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: middle;
+    text-align: center;
+    margin: 0 4px;
+    line-height: 1.1;
+  }
+  .frac .num {
+    padding: 0 4px 2px;
+    border-bottom: 1.4px solid var(--dark);
+  }
+  .frac .den {
+    padding: 2px 4px 0;
+  }
+  .eq-block sup { font-size: 0.7em; }
+  .eq-block .var { font-style: italic; }
+  .eq-block .op { margin: 0 6px; color: var(--gray); }
+  .eq-highlight-navy { color: var(--navy); font-weight: 700; }
+  .eq-highlight-gold { color: #8a7415; font-weight: 700; }
+  .eq-highlight-red { color: var(--red); font-weight: 700; }
+</style>
+
+<header>
+  
+  <div>
+    <h1>Simulasi Interaktif — Kalkulus I</h1>
+    <p>Pertemuan 1 · Penguatan Prasyarat Aljabar &amp; Trigonometri · HIMPUNAN MAHASISWA TEKNIK MESIN UNWAHAS</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab-faktor">1️⃣ Pemfaktoran &amp; Limit</button>
+    <button class="tab-btn" data-tab="tab-explog">2️⃣ Eksponen &amp; Logaritma</button>
+    <button class="tab-btn" data-tab="tab-pertidaksamaan">3️⃣ Pertidaksamaan</button>
+    <button class="tab-btn" data-tab="tab-domainrange">4️⃣ Domain &amp; Range</button>
+    <button class="tab-btn" data-tab="tab-segitiga">5️⃣ Segitiga &amp; SOA-CAH-TOA</button>
+    <button class="tab-btn" data-tab="tab-lingkaran">6️⃣ Lingkaran Satuan</button>
+    <button class="tab-btn" data-tab="tab-sudutistimewa">7️⃣ Sudut Istimewa</button>
+    <button class="tab-btn" data-tab="tab-glosarium">📖 Daftar Istilah</button>
+  </div>
+
+    <!-- ---- BAGIAN 1: PEMFAKTORAN & LIMIT ---- -->
+    <div class="panel active" id="tab-faktor"><div class="card">
+      <span class="badge">SUBTOPIK 1 — ALJABAR &amp; PEMFAKTORAN</span>
+      <h2>Menyederhanakan Pecahan Aljabar &amp; Menuju Konsep Limit</h2>
+      <p>Fungsi <span class="var-inline">f(x) = (x²+bx)/(x²+cx+d)</span> sering bisa
+         disederhanakan dengan pemfaktoran. Geser slider <b>b</b>, <b>c</b>, <b>d</b> untuk
+         melihat bagaimana lubang (titik tak terdefinisi) dan asimtot berubah posisi.</p>
+
+      <div class="grid-2">
+        <div>
+          <div class="control-group">
+            <label>Koefisien b <span class="readout" id="fak-b-val">3</span></label>
+            <input type="range" id="fak-b" min="-6" max="6" step="1" value="3">
+          </div>
+          <div class="control-group">
+            <label>Koefisien c <span class="readout" id="fak-c-val">-1</span></label>
+            <input type="range" id="fak-c" min="-6" max="6" step="1" value="-1">
+          </div>
+          <div class="control-group">
+            <label>Konstanta d <span class="readout" id="fak-d-val">-6</span></label>
+            <input type="range" id="fak-d" min="-9" max="9" step="1" value="-6">
+          </div>
+          <div class="result-box" id="fak-result"></div>
+          <div class="result-box" style="border-left-color:var(--navy);">
+            <b>💡 Mengapa ini penting?</b> Saat pembilang dan penyebut punya faktor yang
+            sama, faktor itu bisa "dicoret" — tapi fungsi tetap TIDAK terdefinisi di titik
+            tersebut (lubang). Inilah gagasan inti limit bentuk 0/0 (Pertemuan 2–3).
+          </div>
+        </div>
+        <div id="plot-faktor" class="plot-box"></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN 2: EKSPONEN & LOGARITMA ---- -->
+    <div class="panel" id="tab-explog"><div class="card">
+      <span class="badge">SUBTOPIK 3 — EKSPONEN &amp; LOGARITMA</span>
+      <h2>Grafik Fungsi Eksponensial &amp; Logaritma</h2>
+      <p>Perhatikan bagaimana grafik <span class="var-inline">y = a^x</span> dan inversnya
+         <span class="var-inline">y = log_a(x)</span> saling <b>mencerminkan</b> terhadap
+         garis y=x. Geser slider basis <b>a</b> untuk melihat perubahannya.</p>
+
+      <div class="control-group">
+        <label>Basis a <span class="readout" id="explog-a-val">2</span></label>
+        <input type="range" id="explog-a" min="11" max="40" step="1" value="20">
+      </div>
+
+      <div class="grid-2">
+        <div id="plot-explog" class="plot-box"></div>
+        <div>
+          <div class="result-box" id="explog-result"></div>
+          <div class="result-box" style="border-left-color:var(--navy);">
+            <b>Sifat kunci:</b> grafik eksponensial (biru) dan logaritma (emas) adalah
+            fungsi invers satu sama lain — jika titik (p,q) ada di satu grafik, maka
+            titik (q,p) ada di grafik satunya. Garis putus-putus y=x adalah cermin
+            simetrinya.
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN 3: PERTIDAKSAMAAN & NILAI MUTLAK ---- -->
+    <div class="panel" id="tab-pertidaksamaan"><div class="card">
+      <span class="badge">SUBTOPIK 5 — PERTIDAKSAMAAN &amp; NILAI MUTLAK</span>
+      <h2>Garis Bilangan Interaktif — Terbatas vs Tak Terhingga</h2>
+      <p id="nm-desc">Pertidaksamaan nilai mutlak <span class="var-inline">|x − p| &lt; r</span> berarti
+         "jarak x ke p kurang dari r". Geser slider pusat <b>p</b> dan radius <b>r</b> untuk
+         melihat himpunan penyelesaian pada garis bilangan berubah.</p>
+
+      <div class="control-group">
+        <label>Bentuk pertidaksamaan</label>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button type="button" class="nm-mode-btn active" data-mode="lt"
+                  style="flex:1; padding:8px; border:2px solid var(--navy); border-radius:6px;
+                         background:var(--navy); color:white; font-weight:600; cursor:pointer;">
+            |x−p| &lt; r <small>(terbatas)</small>
+          </button>
+          <button type="button" class="nm-mode-btn" data-mode="gt"
+                  style="flex:1; padding:8px; border:2px solid var(--navy); border-radius:6px;
+                         background:white; color:var(--navy); font-weight:600; cursor:pointer;">
+            |x−p| &gt; r <small>(tak terhingga)</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Pusat p <span class="readout" id="nm-p-val">4</span></label>
+        <input type="range" id="nm-p" min="-8" max="8" step="1" value="4">
+      </div>
+      <div class="control-group">
+        <label>Radius r <span class="readout" id="nm-r-val">2</span></label>
+        <input type="range" id="nm-r" min="1" max="8" step="1" value="2">
+      </div>
+
+      <div id="plot-nilaimutlak" class="plot-box" style="height:220px;"></div>
+      <div class="result-box" id="nm-result"></div>
+      <div class="result-box" id="nm-note" style="border-left-color:var(--navy);"></div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN 4: DOMAIN & RANGE ---- -->
+    <div class="panel" id="tab-domainrange"><div class="card">
+      <span class="badge">SUBTOPIK 6 — DOMAIN DAN RANGE FUNGSI</span>
+      <h2>Domain &amp; Range Fungsi Parabola (dengan Area)</h2>
+      <p>Untuk <span class="var-inline">f(x) = R² − x²</span>, tidak ada syarat pembatas
+         sama sekali — <b>domain selalu semua bilangan real</b>. Tapi karena bentuknya
+         parabola terbuka ke bawah, nilai fungsi punya batas ATAS di puncak (x=0).
+         Geser slider <b>R</b> untuk melihat area di bawah kurva dan batas range berubah.</p>
+
+      <div class="control-group">
+        <label>Nilai R <span class="readout" id="dr-R-val">3</span></label>
+        <input type="range" id="dr-R" min="1" max="6" step="1" value="3">
+      </div>
+
+      <div class="grid-2">
+        <div id="plot-domainrange" class="plot-box"></div>
+        <div>
+          <div class="result-box" id="dr-result"></div>
+          <div class="result-box" style="border-left-color:var(--navy);">
+            <b>Kaitan ke Pertemuan 2:</b> menentukan domain dengan benar adalah syarat
+            mutlak sebelum menguji kekontinuan fungsi di suatu titik.
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN A: SEGITIGA SIKU-SIKU & SOA-CAH-TOA ---- -->
+    <div class="panel" id="tab-segitiga"><div class="card">
+      <span class="badge">DARI MANA ASALNYA SIN, COS, TAN?</span>
+      <h2>Segitiga Siku-siku &amp; SOA·CAH·TOA</h2>
+      <p>Sebelum masuk ke lingkaran satuan, ingat kembali definisi sin, cos, dan tan
+         dari sebuah segitiga siku-siku. Geser slider sudut θ (0°–90°) untuk melihat
+         perbandingan sisi berubah.</p>
+
+      <div class="control-group">
+        <label>Sudut θ (segitiga) <span class="readout" id="tri-theta-val">40°</span></label>
+        <input type="range" id="tri-theta" min="5" max="85" step="1" value="40">
+      </div>
+
+      <div class="grid-2">
+        <div id="plot-triangle" class="plot-box"></div>
+        <div>
+          <div class="result-box" style="margin-top:0;">
+            <b>SOA — CAH — TOA</b>
+            <div class="eq-block">
+              <div class="eq-line">
+                sin&thinsp;θ <span class="op">=</span>
+                <span class="frac"><span class="num">Depan</span><span class="den">Miring</span></span>
+                <span class="op">=</span>
+                <span class="frac"><span class="num var">a</span><span class="den var">c</span></span>
+              </div>
+              <div class="eq-line">
+                cos&thinsp;θ <span class="op">=</span>
+                <span class="frac"><span class="num">Samping</span><span class="den">Miring</span></span>
+                <span class="op">=</span>
+                <span class="frac"><span class="num var">b</span><span class="den var">c</span></span>
+              </div>
+              <div class="eq-line">
+                tan&thinsp;θ <span class="op">=</span>
+                <span class="frac"><span class="num">Depan</span><span class="den">Samping</span></span>
+                <span class="op">=</span>
+                <span class="frac"><span class="num var">a</span><span class="den var">b</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="result-box" id="tri-result"></div>
+          <div class="result-box" style="border-left-color:var(--navy);">
+            <b>💡 Kunci memahami lingkaran satuan:</b> saat segitiga ini "dimasukkan"
+            ke dalam lingkaran berjari-jari 1 (miring = c = 1), maka otomatis
+            <b>sin θ = tinggi (sumbu-y)</b> dan <b>cos θ = alas (sumbu-x)</b> dari
+            titik pada lingkaran. Inilah jembatan ke tab "Lingkaran Satuan" berikutnya.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- BAGIAN A2: DARI MANA ASALNYA sec, csc, cot? ---- -->
+    <div class="card">
+      <span class="badge">FUNGSI TRIGONOMETRI LAINNYA</span>
+      <h2>Dari Mana Asalnya sec, csc, cot?</h2>
+      <p>Selain sin, cos, tan, ada 3 fungsi trigonometri lain yang sering muncul:
+         <b>sec</b> (secan), <b>csc</b> (cosecan), dan <b>cot</b> (cotangen). Ketiganya
+         BUKAN konsep baru — mereka hanyalah <b>kebalikan (resiprokal)</b> dari cos, sin,
+         dan tan yang sudah dipelajari.</p>
+
+      <div class="eq-block" style="margin-top:14px;">
+        <div class="eq-line">
+          sec&thinsp;θ <span class="op">=</span>
+          <span class="frac"><span class="num">1</span><span class="den">cos&thinsp;θ</span></span>
+          <span class="op">=</span>
+          <span class="frac"><span class="num var">c</span><span class="den var">b</span></span>
+          <span class="op">(Miring/Samping — kebalikan dari cos)</span>
+        </div>
+        <div class="eq-line">
+          csc&thinsp;θ <span class="op">=</span>
+          <span class="frac"><span class="num">1</span><span class="den">sin&thinsp;θ</span></span>
+          <span class="op">=</span>
+          <span class="frac"><span class="num var">c</span><span class="den var">a</span></span>
+          <span class="op">(Miring/Depan — kebalikan dari sin)</span>
+        </div>
+        <div class="eq-line">
+          cot&thinsp;θ <span class="op">=</span>
+          <span class="frac"><span class="num">1</span><span class="den">tan&thinsp;θ</span></span>
+          <span class="op">=</span>
+          <span class="frac"><span class="num var">b</span><span class="den var">a</span></span>
+          <span class="op">(Samping/Depan — kebalikan dari tan)</span>
+        </div>
+      </div>
+
+      <div class="result-box" style="border-left-color:var(--navy); margin-top:14px;">
+        <b>💡 Cara mudah mengingat:</b> tinggal balik pecahan sin/cos/tan-nya.
+        Karena resiprokal, di mana pun cos θ = 0 (mis. θ=90°), maka sec θ akan
+        <b>tak terdefinisi</b> (pembagian oleh nol) — begitu juga csc θ tak terdefinisi
+        saat sin θ = 0, dan cot θ tak terdefinisi saat tan θ = 0. Ini sebabnya identitas
+        Pythagoras punya bentuk turunan <b>1+tan²θ=sec²θ</b> dan <b>1+cot²θ=csc²θ</b>
+        (lihat Subtopik 4 Identitas Trigonometri).
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN B: LINGKARAN SATUAN + GRAFIK sin/cos/tan ---- -->
+    <div class="panel" id="tab-lingkaran"><div class="card">
+      <span class="badge">SUBTOPIK 4 — IDENTITAS TRIGONOMETRI</span>
+      <h2>Lingkaran Satuan &amp; Grafik sin θ, cos θ, tan θ</h2>
+      <p>Geser slider sudut θ untuk melihat titik pada lingkaran satuan bergerak,
+         beserta nilai sin θ, cos θ, dan tan θ pada grafik di sebelahnya. Garis putus-putus
+         pada lingkaran adalah <b>proyeksi</b> — persis sama dengan sisi depan/samping pada
+         segitiga siku-siku di atas. <b>Jejak (trace)</b> pada grafik menunjukkan
+         perjalanan nilai sin/cos saat θ bertambah dari 0°.</p>
+
+      <div class="control-group">
+        <label>Sudut θ (0°–360°) <span class="readout" id="trig-theta-val">45°</span></label>
+        <input type="range" id="trig-theta" min="0" max="360" step="1" value="45">
+      </div>
+
+      <div class="grid-2">
+        <div id="plot-unit-circle" class="plot-box"></div>
+        <div id="plot-sin-cos" class="plot-box"></div>
+      </div>
+
+      <div id="plot-tan" class="plot-box" style="margin-top:10px;"></div>
+
+      <div class="result-box" id="trig-result"></div>
+
+      <div class="result-box" style="border-left-color:var(--navy);">
+        <b>Mengapa grafik tan θ terputus-putus (asimtot)?</b> tan θ = sin θ/cos θ — saat
+        cos θ = 0 (di θ=90° dan θ=270°), pembagian oleh nol membuat tan θ "meledak" menuju
+        ±∞. Ini pratik langsung konsep <b>domain fungsi</b> (Subtopik 6) diterapkan pada
+        fungsi trigonometri.
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- BAGIAN C: TABEL SUDUT ISTIMEWA ---- -->
+    <div class="panel" id="tab-sudutistimewa"><div class="card">
+      <span class="badge">WAJIB HAFAL</span>
+      <h2>Tabel Nilai Sudut Istimewa</h2>
+      <p>Klik salah satu baris untuk langsung menggerakkan slider sudut θ di atas
+         ke nilai tersebut dan melihat posisinya di lingkaran satuan.</p>
+      <div style="overflow-x:auto;">
+        <table id="tabel-istimewa" style="width:100%; border-collapse:collapse; text-align:center; font-size:0.95rem;">
+          <thead>
+            <tr style="background:var(--navy); color:white;">
+              <th style="padding:10px; border:1px solid #ddd;">θ (derajat)</th>
+              <th style="padding:10px; border:1px solid #ddd;">θ (radian)</th>
+              <th style="padding:10px; border:1px solid #ddd;">sin θ</th>
+              <th style="padding:10px; border:1px solid #ddd;">cos θ</th>
+              <th style="padding:10px; border:1px solid #ddd;">tan θ</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-istimewa-body"></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+
+    <!-- ---- DAFTAR ISTILAH ---- -->
+    <div class="panel" id="tab-glosarium"><div class="card">
+      <span class="badge">REFERENSI CEPAT</span>
+      <h2>Daftar Istilah</h2>
+      <p>Penjelasan singkat istilah teknis yang muncul di seluruh simulasi ini.</p>
+    <div class="glossary">
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Fungsi Eksponensial</span>
+          <span class="glossary-def">Fungsi berbentuk f(x) = aˣ, di mana variabel x muncul sebagai pangkat (eksponen), bukan sebagai basis. Contoh: f(x) = 2ˣ.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Logaritma</span>
+          <span class="glossary-def">Operasi kebalikan dari perpangkatan — log_a(x) menjawab "pangkat berapa yang harus diberikan ke basis a agar hasilnya x?". Contoh: log₂(8)=3 karena 2³=8.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Faktorisasi (Pemfaktoran)</span>
+          <span class="glossary-def">Menulis ulang suatu bentuk aljabar sebagai hasil perkalian faktor-faktornya, mis. x²−5x+6 difaktorkan menjadi (x−2)(x−3).</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Pecahan Rasional</span>
+          <span class="glossary-def">Pecahan yang pembilang dan penyebutnya berupa bentuk aljabar (bukan hanya angka), mis. (x+1)/(x−2).</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Koefisien</span>
+          <span class="glossary-def">Angka pengali di depan suatu variabel dalam bentuk aljabar, mis. pada 3x², angka 3 adalah koefisiennya.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Konstanta</span>
+          <span class="glossary-def">Suku dalam bentuk aljabar yang nilainya tetap, tidak mengandung variabel, mis. pada x²+3x−6, angka −6 adalah konstanta.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Pertidaksamaan</span>
+          <span class="glossary-def">Kalimat matematika yang membandingkan dua ekspresi dengan tanda &lt;, &gt;, ≤, atau ≥ (bukan tanda sama-dengan).</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Domain</span>
+          <span class="glossary-def">Himpunan semua nilai input (x) yang boleh dimasukkan ke suatu fungsi tanpa membuatnya tidak terdefinisi.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Range</span>
+          <span class="glossary-def">Himpunan semua nilai output (y) yang mungkin dihasilkan oleh suatu fungsi dari domainnya.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Asimtot</span>
+          <span class="glossary-def">Garis yang didekati terus-menerus oleh grafik fungsi tetapi tidak pernah benar-benar disentuh/dipotong.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Lubang (pada grafik)</span>
+          <span class="glossary-def">Satu titik pada grafik yang tidak terdefinisi (fungsi "bolong" di situ), biasanya karena faktor yang sama tercoret di pembilang dan penyebut.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Himpunan Penyelesaian (HP)</span>
+          <span class="glossary-def">Kumpulan semua nilai x yang memenuhi suatu persamaan atau pertidaksamaan.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Interval Terbuka</span>
+          <span class="glossary-def">Rentang bilangan yang TIDAK menyertakan titik batasnya sendiri, ditulis dengan tanda kurung biasa, mis. (2, 5) berarti 2 dan 5 tidak termasuk.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Tak Terhingga (∞)</span>
+          <span class="glossary-def">Bukan sebuah angka, melainkan simbol yang berarti "tidak ada batas" — dipakai untuk menyatakan himpunan yang meluas tanpa akhir ke satu arah atau lebih.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Fungsi Invers</span>
+          <span class="glossary-def">Fungsi yang "membalikkan" pekerjaan fungsi asal — jika f mengubah a menjadi b, maka invers dari f mengubah b kembali menjadi a. Grafiknya saling mencerminkan terhadap garis y=x.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Basis (pada eksponen/logaritma)</span>
+          <span class="glossary-def">Angka pokok yang dipangkatkan atau menjadi dasar logaritma, mis. pada 2^x atau log₂(x), angka 2 adalah basisnya.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Sisi Depan, Samping, Miring</span>
+          <span class="glossary-def">Pada segitiga siku-siku: sisi Depan (di seberang sudut θ), sisi Samping (bersebelahan dengan θ, bukan sisi miring), dan sisi Miring (sisi terpanjang, di seberang sudut siku-siku).</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">SOA · CAH · TOA</span>
+          <span class="glossary-def">Jembatan keledai untuk mengingat: Sin=Opposite/Adjacent(miring), Cos=Adjacent/Hypotenuse, Tan=Opposite/Adjacent — lihat rumus lengkap di Bagian Trigonometri.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Lingkaran Satuan</span>
+          <span class="glossary-def">Lingkaran berjari-jari 1 yang berpusat di titik (0,0), dipakai untuk mendefinisikan sin dan cos di semua sudut (bukan hanya 0°–90°).</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Sudut Istimewa</span>
+          <span class="glossary-def">Sudut-sudut tertentu (0°, 30°, 45°, 60°, 90°, dst.) yang nilai sin, cos, tan-nya bisa dihitung eksak tanpa kalkulator.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Jejak (Trace)</span>
+          <span class="glossary-def">Bagian grafik yang digambar tebal untuk menunjukkan "perjalanan" nilai fungsi dari titik awal (misalnya θ=0°) sampai posisi slider saat ini.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Nilai Mutlak</span>
+          <span class="glossary-def">Jarak suatu bilangan dari nol pada garis bilangan, selalu bernilai tidak negatif. Ditulis |x|, misalnya |−5| = 5.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Resiprokal (Kebalikan)</span>
+          <span class="glossary-def">Hasil membalik pecahan suatu bilangan/fungsi — resiprokal dari a/b adalah b/a. sec, csc, cot adalah resiprokal dari cos, sin, tan.</span>
+        </div>
+      </div>
+      <div class="glossary-item">
+        <span class="glossary-bullet">📌</span>
+        <div class="glossary-text">
+          <span class="glossary-term">Secan (sec), Cosecan (csc), Cotangen (cot)</span>
+          <span class="glossary-def">Tiga fungsi trigonometri yang merupakan kebalikan dari cos, sin, tan: sec θ=1/cos θ, csc θ=1/sin θ, cot θ=1/tan θ.</span>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+
+</div>
+
+<footer>
+  Kalkulus I — Pertemuan 1 · Pustaka [6]
+</footer>
+
+<script>
+// ============================================================
+// Palet warna konsisten dengan slide
+// ============================================================
+const NAVY = "#0B2A4A", GOLD = "#D4AF37", RED = "#B03030", GRAY = "#5A5A5A", DARK = "#222222";
+
+// ============================================================
+// BAGIAN 1 — PEMFAKTORAN & LIMIT
+// f(x) = (x^2 + b*x) / (x^2 + c*x + d)
+// ============================================================
+function updateFaktor() {
+  const b = parseFloat(document.getElementById("fak-b").value);
+  const c = parseFloat(document.getElementById("fak-c").value);
+  const d = parseFloat(document.getElementById("fak-d").value);
+  document.getElementById("fak-b-val").textContent = b;
+  document.getElementById("fak-c-val").textContent = c;
+  document.getElementById("fak-d-val").textContent = d;
+
+  // akar penyebut x^2+cx+d = 0 -> titik asimtot/lubang kandidat
+  const disc = c * c - 4 * d;
+  let roots = [];
+  if (disc >= 0) {
+    const r1 = (-c + Math.sqrt(disc)) / 2;
+    const r2 = (-c - Math.sqrt(disc)) / 2;
+    roots = [r1, r2];
+  }
+  // akar pembilang x^2+bx = x(x+b) = 0 -> x=0, x=-b
+  const numRoots = [0, -b];
+
+  // titik yang sama antara pembilang & penyebut = lubang
+  const holes = roots.filter(r => numRoots.some(nr => Math.abs(nr - r) < 1e-6));
+  const asymptotes = roots.filter(r => !numRoots.some(nr => Math.abs(nr - r) < 1e-6));
+
+  const f = x => (x * x + b * x) / (x * x + c * x + d);
+
+  const xs = [];
+  const ys = [];
+  for (let x = -10; x <= 10; x += 0.05) {
+    let skip = false;
+    [...holes, ...asymptotes].forEach(r => { if (Math.abs(x - r) < 0.08) skip = true; });
+    if (skip) continue;
+    const val = f(x);
+    if (Math.abs(val) > 15) continue;
+    xs.push(x);
+    ys.push(val);
+  }
+
+  const traces = [
+    { x: xs, y: ys, mode: "lines", line: { color: NAVY, width: 2.5 }, name: "f(x)" },
+  ];
+  holes.forEach(h => {
+    traces.push({ x: [h], y: [f(h + 1e-6)], mode: "markers",
+      marker: { size: 11, color: "white", line: { color: RED, width: 2.5 } }, name: `lubang x=${h.toFixed(2)}` });
+  });
+  asymptotes.forEach(a => {
+    traces.push({ x: [a, a], y: [-15, 15], mode: "lines",
+      line: { color: GRAY, width: 1.3, dash: "dash" }, showlegend: false, hoverinfo: "skip" });
+  });
+
+  Plotly.react("plot-faktor", traces, {
+    title: { text: "Grafik f(x) — lubang & asimtot", font: { color: NAVY, size: 14 } },
+    xaxis: { range: [-10, 10] },
+    yaxis: { range: [-15, 15] },
+    margin: { t: 40, b: 40, l: 45, r: 10 },
+    legend: { orientation: "h", y: -0.2, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+
+  let msg = `f(x) = (x²${b>=0?"+":""}${b}x) / (x²${c>=0?"+":""}${c}x${d>=0?"+":""}${d})<br>`;
+  msg += holes.length
+    ? `<b>Lubang (tak terdefinisi):</b> x = ${holes.map(h => h.toFixed(2)).join(", ")}`
+    : `<b>Tidak ada lubang</b> untuk kombinasi nilai ini`;
+  msg += "<br>";
+  msg += asymptotes.length
+    ? `<b>Asimtot tegak:</b> x = ${asymptotes.map(a => a.toFixed(2)).join(", ")}`
+    : `<b>Tidak ada asimtot tegak</b> untuk kombinasi nilai ini`;
+  document.getElementById("fak-result").innerHTML = msg;
+}
+
+["fak-b", "fak-c", "fak-d"].forEach(id =>
+  document.getElementById(id).addEventListener("input", updateFaktor));
+
+// ============================================================
+// BAGIAN 2 — EKSPONEN & LOGARITMA
+// ============================================================
+function updateExpLog() {
+  const aRaw = parseFloat(document.getElementById("explog-a").value);
+  const a = aRaw / 10; // slider 11..40 -> a = 1.1..4.0
+  document.getElementById("explog-a-val").textContent = a.toFixed(1);
+
+  const xsExp = [], ysExp = [];
+  for (let x = -3; x <= 3; x += 0.05) {
+    const y = Math.pow(a, x);
+    if (y > 20) continue;
+    xsExp.push(x);
+    ysExp.push(y);
+  }
+
+  const xsLog = [], ysLog = [];
+  for (let x = 0.05; x <= 20; x += 0.05) {
+    const y = Math.log(x) / Math.log(a);
+    if (Math.abs(y) > 5) continue;
+    xsLog.push(x);
+    ysLog.push(y);
+  }
+
+  const diag = { x: [-3, 20], y: [-3, 20], mode: "lines",
+    line: { color: GRAY, width: 1.3, dash: "dot" }, name: "y = x" };
+
+  const traces = [
+    { x: xsExp, y: ysExp, mode: "lines", line: { color: NAVY, width: 2.5 }, name: `y = ${a.toFixed(1)}^x` },
+    { x: xsLog, y: ysLog, mode: "lines", line: { color: GOLD, width: 2.5 }, name: `y = log_${a.toFixed(1)}(x)` },
+    diag,
+  ];
+
+  Plotly.react("plot-explog", traces, {
+    title: { text: "Fungsi Eksponensial & Logaritma (saling invers)", font: { color: NAVY, size: 13 } },
+    xaxis: { range: [-3, 8] },
+    yaxis: { range: [-3, 8] },
+    margin: { t: 40, b: 40, l: 45, r: 10 },
+    legend: { orientation: "h", y: -0.2, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+
+  document.getElementById("explog-result").innerHTML =
+    `Basis a = <b>${a.toFixed(1)}</b><br>
+     Contoh titik: a<sup>1</sup> = ${a.toFixed(1)} &nbsp;→&nbsp; log_${a.toFixed(1)}(${a.toFixed(1)}) = 1`;
+}
+
+document.getElementById("explog-a").addEventListener("input", updateExpLog);
+
+// ============================================================
+// BAGIAN 3 — PERTIDAKSAMAAN & NILAI MUTLAK
+// Mode "lt" (terbatas):     |x-p| < r  <=>  p-r < x < p+r
+// Mode "gt" (tak terhingga): |x-p| > r  <=>  x < p-r  atau  x > p+r
+// ============================================================
+let nmMode = "lt";
+
+function updateNilaiMutlak() {
+  const p = parseFloat(document.getElementById("nm-p").value);
+  const r = parseFloat(document.getElementById("nm-r").value);
+  document.getElementById("nm-p-val").textContent = p;
+  document.getElementById("nm-r-val").textContent = r;
+
+  const lo = p - r, hi = p + r;
+  const axisMin = -14, axisMax = 14;
+
+  const traces = [
+    { x: [axisMin, axisMax], y: [0, 0], mode: "lines",
+      line: { color: GRAY, width: 2 }, showlegend: false, hoverinfo: "skip" },
+  ];
+
+  if (nmMode === "lt") {
+    // HIMPUNAN TERBATAS: satu ruas garis tebal antara lo dan hi
+    traces.push(
+      { x: [lo, hi], y: [0, 0], mode: "lines",
+        line: { color: NAVY, width: 8 }, name: "Himpunan penyelesaian (terbatas)" },
+      { x: [lo, hi], y: [0, 0], mode: "markers",
+        marker: { size: 14, color: "white", line: { color: RED, width: 3 } }, name: "Batas (terbuka)" },
+    );
+  } else {
+    // HIMPUNAN TAK TERHINGGA: dua sinar menuju -∞ dan +∞, ditandai panah
+    traces.push(
+      { x: [axisMin, lo], y: [0, 0], mode: "lines",
+        line: { color: NAVY, width: 8 }, name: "Himpunan penyelesaian (→ −∞)" },
+      { x: [hi, axisMax], y: [0, 0], mode: "lines",
+        line: { color: NAVY, width: 8 }, name: "Himpunan penyelesaian (→ +∞)" },
+      { x: [lo, hi], y: [0, 0], mode: "markers",
+        marker: { size: 14, color: "white", line: { color: RED, width: 3 } }, name: "Batas (terbuka)" },
+      { x: [axisMin + 0.3], y: [0], mode: "markers",
+        marker: { size: 13, color: NAVY, symbol: "triangle-left" }, name: "menuju −∞", showlegend: false },
+      { x: [axisMax - 0.3], y: [0], mode: "markers",
+        marker: { size: 13, color: NAVY, symbol: "triangle-right" }, name: "menuju +∞", showlegend: false },
+    );
+  }
+
+  traces.push({ x: [p], y: [0], mode: "markers",
+    marker: { size: 10, color: GOLD, symbol: "diamond" }, name: `Pusat p=${p}` });
+
+  Plotly.react("plot-nilaimutlak", traces, {
+    xaxis: { range: [axisMin, axisMax], zeroline: false,
+             tickmode: "linear", dtick: 2 },
+    yaxis: { range: [-1, 1.5], showticklabels: false, zeroline: false, showgrid: false },
+    margin: { t: 20, b: 30, l: 20, r: 20 },
+    legend: { orientation: "h", y: 1.3, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+
+  if (nmMode === "lt") {
+    document.getElementById("nm-desc").innerHTML =
+      `Pertidaksamaan nilai mutlak <span class="var-inline">|x − p| &lt; r</span> berarti
+       "jarak x ke p kurang dari r" — hasilnya himpunan <b>terbatas</b> (satu interval).
+       Geser slider pusat <b>p</b> dan radius <b>r</b> untuk melihat perubahannya.`;
+    document.getElementById("nm-result").innerHTML =
+      `|x − ${p}| &lt; ${r} &nbsp;⇔&nbsp; ${p}−${r} &lt; x &lt; ${p}+${r}
+       &nbsp;⇔&nbsp; <b>${lo} &lt; x &lt; ${hi}</b> &nbsp;→&nbsp; HP: (${lo}, ${hi})`;
+    document.getElementById("nm-note").innerHTML =
+      `<b>Himpunan TERBATAS:</b> semua x yang memenuhi terkumpul dalam satu rentang
+       terbatas — bisa digambar sebagai satu ruas garis dengan panjang tertentu (2r).`;
+  } else {
+    document.getElementById("nm-desc").innerHTML =
+      `Pertidaksamaan nilai mutlak <span class="var-inline">|x − p| &gt; r</span> berarti
+       "jarak x ke p LEBIH DARI r" — hasilnya himpunan <b>tak terhingga</b> (dua sinar
+       yang meluas ke ±∞). Geser slider pusat <b>p</b> dan radius <b>r</b> untuk melihat
+       perubahannya.`;
+    document.getElementById("nm-result").innerHTML =
+      `|x − ${p}| &gt; ${r} &nbsp;⇔&nbsp; x &lt; ${p}−${r} &nbsp;atau&nbsp; x &gt; ${p}+${r}
+       &nbsp;⇔&nbsp; <b>x &lt; ${lo} atau x &gt; ${hi}</b>
+       &nbsp;→&nbsp; HP: (−∞, ${lo}) ∪ (${hi}, ∞)`;
+    document.getElementById("nm-note").innerHTML =
+      `<b>Himpunan TAK TERHINGGA:</b> penyelesaian meluas tanpa batas ke kiri DAN ke
+       kanan — tidak bisa digambar sebagai satu ruas garis berhingga, hanya bisa
+       ditunjukkan dengan tanda panah menuju −∞ dan +∞. Notasi ∞ bukan angka, melainkan
+       simbol "tidak ada batas".`;
+  }
+}
+
+["nm-p", "nm-r"].forEach(id =>
+  document.getElementById(id).addEventListener("input", updateNilaiMutlak));
+
+document.querySelectorAll(".nm-mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    nmMode = btn.dataset.mode;
+    document.querySelectorAll(".nm-mode-btn").forEach(b => {
+      b.classList.remove("active");
+      b.style.background = "white";
+      b.style.color = "var(--navy)";
+    });
+    btn.classList.add("active");
+    btn.style.background = "var(--navy)";
+    btn.style.color = "white";
+    updateNilaiMutlak();
+  });
+});
+
+// ============================================================
+// BAGIAN 4 — DOMAIN & RANGE
+// f(x) = R^2 - x^2  (parabola terbuka ke bawah, dengan area di bawah kurva)
+// ============================================================
+function updateDomainRange() {
+  const R = parseFloat(document.getElementById("dr-R").value);
+  document.getElementById("dr-R-val").textContent = R;
+
+  const puncak = R * R;
+  const batasKiri = -Math.sqrt(2) * R, batasKanan = Math.sqrt(2) * R; // sampai y=0 (estetika plot)
+
+  const xs = [], ys = [];
+  for (let x = batasKiri; x <= batasKanan; x += (batasKanan - batasKiri) / 200) {
+    xs.push(x);
+    ys.push(R * R - x * x);
+  }
+
+  const traces = [
+    // area terisi di bawah kurva (di atas sumbu-x) -> menunjukkan "daerah nilai" fungsi
+    { x: xs, y: ys, mode: "lines", fill: "tozeroy", fillcolor: "rgba(212,175,55,0.25)",
+      line: { color: NAVY, width: 2.5 }, name: "f(x) = R²−x²" },
+    // garis batas atas range (puncak parabola)
+    { x: [batasKiri, batasKanan], y: [puncak, puncak], mode: "lines",
+      line: { color: RED, width: 2, dash: "dash" }, name: `y = ${puncak} (batas atas range)` },
+    // titik puncak
+    { x: [0], y: [puncak], mode: "markers",
+      marker: { size: 11, color: RED }, name: `Puncak (0, ${puncak})` },
+    // garis domain di sumbu-x (menegaskan: SEMUA x, tak terbatas)
+    { x: [batasKiri, batasKanan], y: [0, 0], mode: "lines",
+      line: { color: GOLD, width: 5 }, name: "Domain: semua real (diperluas ke kiri/kanan)" },
+  ];
+
+  Plotly.react("plot-domainrange", traces, {
+    title: { text: `f(x) = ${R}²−x² = ${puncak}−x²`, font: { color: NAVY, size: 14 } },
+    xaxis: { range: [batasKiri - 1, batasKanan + 1] },
+    yaxis: { range: [-2, puncak + 3] },
+    margin: { t: 40, b: 40, l: 45, r: 10 },
+    legend: { orientation: "h", y: -0.2, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+
+  document.getElementById("dr-result").innerHTML =
+    `Tidak ada syarat pembatas pada x &nbsp;→&nbsp; <b>Domain: semua bilangan real (−∞, ∞)</b><br>
+     Karena parabola terbuka ke bawah dengan puncak (0, ${puncak}) &nbsp;→&nbsp;
+     <b>Range: y ≤ ${puncak}</b>, ditulis (−∞, ${puncak}]`;
+}
+
+document.getElementById("dr-R").addEventListener("input", updateDomainRange);
+
+// ============================================================
+// TRIGONOMETRI
+// ============================================================
+function degToRad(d) { return d * Math.PI / 180; }
+
+function drawUnitCircle(thetaDeg) {
+  const theta = degToRad(thetaDeg);
+  const cx = Math.cos(theta), cy = Math.sin(theta);
+  const circleTheta = [];
+  for (let i = 0; i <= 360; i++) circleTheta.push(degToRad(i));
+
+  // busur sudut: dari sumbu-x positif (0°) sampai ke posisi theta saat ini
+  const arcRadius = 0.32;
+  const arcPoints = [];
+  const steps = Math.max(2, Math.round(Math.abs(thetaDeg)));
+  for (let i = 0; i <= steps; i++) {
+    const t = degToRad((thetaDeg * i) / steps);
+    arcPoints.push([arcRadius * Math.cos(t), arcRadius * Math.sin(t)]);
+  }
+  // titik label di tengah busur (sedikit di luar radius busur agar tidak menimpa garis)
+  const midAngle = degToRad(thetaDeg / 2);
+  const labelR = arcRadius + 0.16;
+  const labelX = labelR * Math.cos(midAngle);
+  const labelY = labelR * Math.sin(midAngle);
+
+  const traces = [
+    { x: circleTheta.map(Math.cos), y: circleTheta.map(Math.sin),
+      mode: "lines", line: { color: NAVY, width: 2 }, name: "Lingkaran satuan", hoverinfo: "skip" },
+    // garis referensi sumbu-x positif (0°) sebagai acuan awal sudut
+    { x: [0, 1], y: [0, 0], mode: "lines", line: { color: GRAY, width: 1.5, dash: "dot" },
+      showlegend: false, hoverinfo: "skip" },
+    // busur sudut θ
+    { x: arcPoints.map(p => p[0]), y: arcPoints.map(p => p[1]), mode: "lines",
+      line: { color: "#8a7415", width: 2.5 }, name: `Sudut θ=${thetaDeg}°`, hoverinfo: "skip" },
+    { x: [0, cx], y: [0, cy], mode: "lines+markers",
+      line: { color: RED, width: 3 }, marker: { size: 9, color: RED }, name: "Jari-jari" },
+    { x: [cx, cx], y: [0, cy], mode: "lines", line: { color: GOLD, width: 1.5, dash: "dot" },
+      name: "cos θ (proyeksi x)" },
+    { x: [0, cx], y: [cy, cy], mode: "lines", line: { color: NAVY, width: 1.5, dash: "dot" },
+      name: "sin θ (proyeksi y)" },
+  ];
+
+  Plotly.react("plot-unit-circle", traces, {
+    title: { text: "Lingkaran Satuan", font: { color: NAVY, size: 15 } },
+    xaxis: { range: [-1.3, 1.3], zeroline: true, scaleanchor: "y" },
+    yaxis: { range: [-1.3, 1.3], zeroline: true },
+    margin: { t: 40, b: 30, l: 30, r: 10 },
+    showlegend: false,
+    annotations: [
+      { x: labelX, y: labelY, text: `θ=${thetaDeg}°`, showarrow: false,
+        font: { size: 12, color: "#8a7415", family: "Arial Black" } },
+    ],
+  }, { responsive: true, displayModeBar: false });
+}
+
+function drawSinCos(thetaDeg) {
+  const xs = [], sinY = [], cosY = [];
+  for (let d = 0; d <= 360; d += 2) {
+    xs.push(d);
+    sinY.push(Math.sin(degToRad(d)));
+    cosY.push(Math.cos(degToRad(d)));
+  }
+  const theta = degToRad(thetaDeg);
+
+  const traceX = [], traceSinY = [], traceCosY = [];
+  for (let d = 0; d <= thetaDeg; d += 4) {
+    traceX.push(d);
+    traceSinY.push(Math.sin(degToRad(d)));
+    traceCosY.push(Math.cos(degToRad(d)));
+  }
+
+  const traces = [
+    { x: xs, y: sinY, mode: "lines", line: { color: NAVY, width: 1.5, dash: "dot" },
+      opacity: 0.35, name: "sin θ (penuh)", hoverinfo: "skip" },
+    { x: xs, y: cosY, mode: "lines", line: { color: GOLD, width: 1.5, dash: "dot" },
+      opacity: 0.35, name: "cos θ (penuh)", hoverinfo: "skip" },
+    { x: traceX, y: traceSinY, mode: "lines", line: { color: NAVY, width: 3 },
+      name: "sin θ (jejak 0→θ)" },
+    { x: traceX, y: traceCosY, mode: "lines", line: { color: GOLD, width: 3 },
+      name: "cos θ (jejak 0→θ)" },
+    { x: [thetaDeg], y: [Math.sin(theta)], mode: "markers",
+      marker: { size: 12, color: RED }, name: "sin(θ) saat ini" },
+    { x: [thetaDeg], y: [Math.cos(theta)], mode: "markers",
+      marker: { size: 12, color: RED, symbol: "diamond" }, name: "cos(θ) saat ini" },
+  ];
+
+  Plotly.react("plot-sin-cos", traces, {
+    title: { text: "Grafik sin θ dan cos θ (jejak tebal = sudah dilalui)", font: { color: NAVY, size: 14 } },
+    xaxis: { title: "θ (derajat)" },
+    yaxis: { range: [-1.2, 1.2] },
+    margin: { t: 40, b: 40, l: 45, r: 10 },
+    legend: { orientation: "h", y: -0.25, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+}
+
+function drawTan(thetaDeg) {
+  const segments = [[0, 90], [90, 270], [270, 360]];
+  const traces = [];
+  segments.forEach((seg, i) => {
+    const xs = [], ys = [];
+    for (let d = seg[0]; d <= seg[1]; d += 1) {
+      if (Math.abs(d - 90) < 0.5 || Math.abs(d - 270) < 0.5) continue;
+      const t = Math.tan(degToRad(d));
+      if (Math.abs(t) > 10) continue;
+      xs.push(d);
+      ys.push(t);
+    }
+    traces.push({ x: xs, y: ys, mode: "lines", line: { color: RED, width: 2.5 },
+      name: i === 0 ? "tan θ" : "tan θ (lanjutan)", showlegend: i === 0 });
+  });
+
+  const theta = degToRad(thetaDeg);
+  const tanNow = Math.tan(theta);
+  if (Math.abs(tanNow) <= 10) {
+    traces.push({ x: [thetaDeg], y: [tanNow], mode: "markers",
+      marker: { size: 11, color: NAVY }, name: "tan(θ) saat ini" });
+  }
+  traces.push({ x: [90, 90], y: [-10, 10], mode: "lines",
+    line: { color: GRAY, width: 1, dash: "dash" }, showlegend: false, hoverinfo: "skip" });
+  traces.push({ x: [270, 270], y: [-10, 10], mode: "lines",
+    line: { color: GRAY, width: 1, dash: "dash" }, showlegend: false, hoverinfo: "skip" });
+
+  Plotly.react("plot-tan", traces, {
+    title: { text: "Grafik tan θ — terputus di asimtot θ=90° dan θ=270°", font: { color: NAVY, size: 14 } },
+    xaxis: { title: "θ (derajat)", range: [0, 360] },
+    yaxis: { title: "tan θ", range: [-10, 10] },
+    margin: { t: 40, b: 40, l: 50, r: 10 },
+    legend: { orientation: "h", y: -0.25, font: { size: 10 } },
+  }, { responsive: true, displayModeBar: false });
+}
+
+function updateTrig() {
+  const thetaDeg = parseFloat(document.getElementById("trig-theta").value);
+  document.getElementById("trig-theta-val").textContent = thetaDeg + "°";
+  drawUnitCircle(thetaDeg);
+  drawSinCos(thetaDeg);
+  drawTan(thetaDeg);
+  const theta = degToRad(thetaDeg);
+  const sinV = Math.sin(theta).toFixed(4);
+  const cosV = Math.cos(theta).toFixed(4);
+  const cosCheck = Math.cos(theta);
+  const tanV = Math.abs(cosCheck) < 1e-9 ? "tak terdefinisi" : Math.tan(theta).toFixed(4);
+  const check = (Math.sin(theta) ** 2 + Math.cos(theta) ** 2).toFixed(4);
+  document.getElementById("trig-result").innerHTML =
+    `<b>θ = ${thetaDeg}°</b>
+     <div class="eq-block" style="line-height:1.9; margin-top:6px;">
+       <div class="eq-line">
+         sin&thinsp;θ <span class="op">=</span> <span class="eq-highlight-navy">${sinV}</span>
+         <span class="op">&nbsp;|&nbsp;</span>
+         cos&thinsp;θ <span class="op">=</span> <span class="eq-highlight-gold">${cosV}</span>
+         <span class="op">&nbsp;|&nbsp;</span>
+         tan&thinsp;θ <span class="op">=</span> <span class="eq-highlight-red">${tanV}</span>
+       </div>
+       <div class="eq-line">
+         Identitas Pythagoras:
+         sin<sup>2</sup>θ <span class="op">+</span> cos<sup>2</sup>θ
+         <span class="op">=</span> ${check}
+         <b>${Math.abs(check - 1) < 0.001 ? "✓ (harus = 1, terverifikasi)" : "(harus = 1)"}</b>
+       </div>
+     </div>`;
+}
+
+document.getElementById("trig-theta").addEventListener("input", updateTrig);
+
+// ============================================================
+// BAGIAN A — SEGITIGA SIKU-SIKU & SOA-CAH-TOA
+// ============================================================
+function drawTriangle(thetaDeg) {
+  const theta = degToRad(thetaDeg);
+  const c = 4;
+  const a = c * Math.sin(theta);
+  const b = c * Math.cos(theta);
+
+  // busur sudut θ dinamis: dari sisi alas (0°) sampai ke sisi miring (thetaDeg)
+  const arcRadius = 0.6;
+  const arcPoints = [];
+  const steps = Math.max(2, Math.round(thetaDeg));
+  for (let i = 0; i <= steps; i++) {
+    const t = degToRad((thetaDeg * i) / steps);
+    arcPoints.push([arcRadius * Math.cos(t), arcRadius * Math.sin(t)]);
+  }
+  const midAngle = degToRad(thetaDeg / 2);
+  const labelR = arcRadius + 0.35;
+  const labelX = labelR * Math.cos(midAngle);
+  const labelY = labelR * Math.sin(midAngle);
+
+  const traces = [
+    { x: [0, b, 0, 0], y: [0, 0, a, 0], mode: "lines",
+      fill: "toself", fillcolor: "rgba(212,175,55,0.15)",
+      line: { color: NAVY, width: 2.5 }, hoverinfo: "skip", showlegend: false },
+    { x: [b - 0.25, b - 0.25, b], y: [0, 0.25, 0.25], mode: "lines",
+      line: { color: GRAY, width: 1.5 }, hoverinfo: "skip", showlegend: false },
+    // busur sudut θ, membesar/mengecil sesuai slider
+    { x: arcPoints.map(p => p[0]), y: arcPoints.map(p => p[1]), mode: "lines",
+      line: { color: "#8a7415", width: 2.5 }, hoverinfo: "skip", showlegend: false },
+  ];
+
+  Plotly.react("plot-triangle", traces, {
+    title: { text: `Segitiga Siku-siku (θ=${thetaDeg}°)`, font: { color: NAVY, size: 14 } },
+    xaxis: { range: [-1.7, 4.5], scaleanchor: "y", showgrid: false, zeroline: false,
+             showticklabels: false },
+    yaxis: { range: [-0.5, 4.5], showgrid: false, zeroline: false, showticklabels: false },
+    margin: { t: 40, b: 10, l: 10, r: 10 },
+    annotations: [
+      { x: b / 2, y: -0.3, text: "b (samping) = c·cosθ", showarrow: false, font: { size: 12, color: GOLD } },
+      { x: -0.15, y: a / 2, text: "a (depan)<br>= c·sinθ", showarrow: false, font: { size: 12, color: NAVY }, xanchor: "right" },
+      { x: b / 2 - 0.3, y: a / 2 + 0.3, text: "c (miring)", showarrow: false, font: { size: 12, color: RED }, textangle: -Math.atan2(a,b)*180/Math.PI },
+      { x: labelX, y: labelY, text: `θ=${thetaDeg}°`, showarrow: false,
+        font: { size: 12, color: "#8a7415", family: "Arial Black" } },
+    ],
+  }, { responsive: true, displayModeBar: false });
+}
+
+function updateTriangle() {
+  const thetaDeg = parseFloat(document.getElementById("tri-theta").value);
+  document.getElementById("tri-theta-val").textContent = thetaDeg + "°";
+  drawTriangle(thetaDeg);
+  const theta = degToRad(thetaDeg);
+  const sinV = Math.sin(theta).toFixed(3);
+  const cosV = Math.cos(theta).toFixed(3);
+  const tanV = Math.tan(theta).toFixed(3);
+  document.getElementById("tri-result").innerHTML =
+    `Dengan c=4 (misal): a=${(4*Math.sin(theta)).toFixed(2)}, b=${(4*Math.cos(theta)).toFixed(2)}<br>
+     sin${thetaDeg}°=${sinV} &nbsp; cos${thetaDeg}°=${cosV} &nbsp; tan${thetaDeg}°=${tanV}`;
+}
+
+document.getElementById("tri-theta").addEventListener("input", updateTriangle);
+
+// ============================================================
+// BAGIAN C — TABEL SUDUT ISTIMEWA (klik baris = set slider)
+// ============================================================
+const SUDUT_ISTIMEWA = [
+  { deg: 0,   label: "0",        sin: "0",            cos: "1",            tan: "0" },
+  { deg: 30,  label: "π/6",      sin: "1/2",          cos: "√3/2",         tan: "√3/3" },
+  { deg: 45,  label: "π/4",      sin: "√2/2",         cos: "√2/2",         tan: "1" },
+  { deg: 60,  label: "π/3",      sin: "√3/2",         cos: "1/2",          tan: "√3" },
+  { deg: 90,  label: "π/2",      sin: "1",            cos: "0",            tan: "tak hingga" },
+  { deg: 180, label: "π",        sin: "0",            cos: "-1",           tan: "0" },
+  { deg: 270, label: "3π/2",     sin: "-1",           cos: "0",            tan: "tak hingga" },
+  { deg: 360, label: "2π",       sin: "0",            cos: "1",            tan: "0" },
+];
+
+function buildTabelIstimewa() {
+  const tbody = document.getElementById("tabel-istimewa-body");
+  tbody.innerHTML = "";
+  SUDUT_ISTIMEWA.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.style.transition = "background 0.15s";
+    tr.onmouseenter = () => tr.style.background = "#F0F0F0";
+    tr.onmouseleave = () => tr.style.background = "";
+    tr.innerHTML = `
+      <td style="padding:8px; border:1px solid #ddd; font-weight:600;">${row.deg}°</td>
+      <td style="padding:8px; border:1px solid #ddd;">${row.label}</td>
+      <td style="padding:8px; border:1px solid #ddd; color:var(--navy); font-weight:600;">${row.sin}</td>
+      <td style="padding:8px; border:1px solid #ddd; color:#8a7415; font-weight:600;">${row.cos}</td>
+      <td style="padding:8px; border:1px solid #ddd; color:var(--red); font-weight:600;">${row.tan}</td>
+    `;
+    tr.addEventListener("click", () => {
+      document.getElementById("trig-theta").value = row.deg;
+      updateTrig();
+      document.getElementById("plot-unit-circle").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+    window.dispatchEvent(new Event("resize"));
+  });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+updateFaktor();
+updateExpLog();
+updateNilaiMutlak();
+updateDomainRange();
+updateTriangle();
+buildTabelIstimewa();
+updateTrig();
+</script>
